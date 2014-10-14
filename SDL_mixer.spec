@@ -1,15 +1,19 @@
 Summary:	Simple DirectMedia Layer - Sample Mixer Library
 Name:		SDL_mixer
 Version:	1.2.12
-Release:	1
+Release:	2
 License:	LGPL
 Group:		Libraries
 Source0:	http://www.libsdl.org/projects/SDL_mixer/release/%{name}-%{version}.tar.gz
 # Source0-md5:	e03ff73d77a55e3572ad0217131dc4a1
+Patch0:		double-free-crash.patch
 URL:		http://www.libsdl.org/projects/SDL_mixer/
 BuildRequires:	SDL-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	flac-devel
+BuildRequires:	fluidsynth-devel
+BuildRequires:	libmikmod-devel
 BuildRequires:	libtool
 BuildRequires:	libvorbis-devel
 BuildRequires:	smpeg-devel
@@ -31,8 +35,9 @@ Header files and more to develop SDL_mixer applications.
 
 %prep
 %setup -q
+%patch0 -p1
 
-sed -i "s|AC_CONFIG_AUX_DIRS.*||" configure.in
+%{__sed} -i "s|AC_CONFIG_AUX_DIRS.*||" configure.in
 
 %build
 cp /usr/share/automake/mkinstalldirs .
@@ -49,6 +54,8 @@ install -d $RPM_BUILD_ROOT%{_bindir}
 
 %{__make} install install-bin \
 	DESTDIR=$RPM_BUILD_ROOT
+
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/*.la
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -67,7 +74,6 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/lib*.so
-%{_libdir}/lib*.la
 %{_includedir}/SDL/*
 %{_pkgconfigdir}/*.pc
 
